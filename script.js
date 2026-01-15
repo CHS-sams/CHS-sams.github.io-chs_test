@@ -2,6 +2,8 @@ const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
 canvas.addEventListener("pointerdown", e => {
+  canvas.setPointerCapture(e.pointerId);
+
   mouse.x = e.clientX;
   mouse.y = e.clientY;
   mouseActive = true;
@@ -11,19 +13,19 @@ canvas.addEventListener("pointerdown", e => {
   lastClickTime = now;
 });
 
-canvas.addEventListener("pointerup", () => {
-  mouseActive = false;
-});
-
-canvas.addEventListener("pointerleave", () => {
-  mouseActive = false;
-});
-
 canvas.addEventListener("pointermove", e => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
 });
 
+canvas.addEventListener("pointerup", e => {
+  canvas.releasePointerCapture(e.pointerId);
+  mouseActive = false;
+});
+
+canvas.addEventListener("pointercancel", () => {
+  mouseActive = false;
+});
 
 
 const textCanvas = document.createElement("canvas");
