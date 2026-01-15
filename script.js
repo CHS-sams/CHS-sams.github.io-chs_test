@@ -1,16 +1,32 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-canvas.addEventListener("click", e => {
-  const now = performance.now();
+canvas.addEventListener("mousedown", e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  mouseActive = true;
+});
 
+canvas.addEventListener("mouseup", () => {
+  mouseActive = false;
+});
+
+// 画面外にマウス出た時も解除（地味に大事）
+canvas.addEventListener("mouseleave", () => {
+  mouseActive = false;
+});
+canvas.addEventListener("mousedown", e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  mouseActive = true;
+
+  const now = performance.now();
   if (now - lastClickTime < DOUBLE_CLICK_TIME) {
-    // ダブルクリック成立
     explode();
   }
-
   lastClickTime = now;
 });
+
 
 
 const textCanvas = document.createElement("canvas");
@@ -18,6 +34,8 @@ const tctx = textCanvas.getContext("2d");
 
 let targets = [];
 let blocks = [];
+let mouseActive = false;
+
 
 let mouse = {
   x: 0,
@@ -97,15 +115,18 @@ function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   for (const b of blocks) {
-    const dx = b.x - mouse.x;
-    const dy = b.y - mouse.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (mouseActive) {
+  const dx = b.x - mouse.x;
+  const dy = b.y - mouse.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
 
-    if (dist < mouse.radius && dist > 0.001) {
-  const force = (mouse.radius - dist) / mouse.radius;
-  b.vx += (dx / dist) * force * 5;
-  b.vy += (dy / dist) * force * 5;
+  if (dist < mouse.radius && dist > 0.001) {
+    const force = (mouse.radius - dist) / mouse.radius;
+    b.vx += (dx / dist) * force * 5;
+    b.vy += (dy / dist) * force * 5;
+  }
 }
+
 
     // 修復：元の位置に戻ろうとする
     b.vx += (b.tx - b.x) * 0.01;
