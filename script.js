@@ -1,30 +1,27 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-canvas.addEventListener("mousedown", e => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-  mouseActive = true;
-});
-
-canvas.addEventListener("mouseup", () => {
-  mouseActive = false;
-});
-
-// 画面外にマウス出た時も解除（地味に大事）
-canvas.addEventListener("mouseleave", () => {
-  mouseActive = false;
-});
-canvas.addEventListener("mousedown", e => {
+canvas.addEventListener("pointerdown", e => {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
   mouseActive = true;
 
   const now = performance.now();
-  if (now - lastClickTime < DOUBLE_CLICK_TIME) {
-    explode();
-  }
+  if (now - lastClickTime < DOUBLE_CLICK_TIME) explode();
   lastClickTime = now;
+});
+
+canvas.addEventListener("pointerup", () => {
+  mouseActive = false;
+});
+
+canvas.addEventListener("pointerleave", () => {
+  mouseActive = false;
+});
+
+canvas.addEventListener("pointermove", e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
 });
 
 
@@ -47,10 +44,6 @@ let lastClickTime = 0;
 const DOUBLE_CLICK_TIME = 300; // ms
 
 
-window.addEventListener("mousemove", e => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-});
 
 
 
@@ -129,8 +122,11 @@ function loop() {
 
 
     // 修復：元の位置に戻ろうとする
-    b.vx += (b.tx - b.x) * 0.01;
-    b.vy += (b.ty - b.y) * 0.01;
+if (!mouseActive) {
+  b.vx += (b.tx - b.x) * 0.01;
+  b.vy += (b.ty - b.y) * 0.01;
+}
+
 
     // 摩擦（これがないと永久機関）
     b.vx *= 0.85;
